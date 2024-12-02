@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .task-column {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .task-column h2 {
+            text-align: center;
+        }
+        .task {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+            background-color: #007BFF;
+            color: white;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerenciador de Tarefas</h1>
+    <form id="task-form">
+        <select id="predefined-tasks">
+            <option value="">Escolha uma tarefa predefinida</option>
+            <option value="Revisar documentos">Revisar documentos</option>
+            <option value="Enviar relatório">Enviar relatório</option>
+            <option value="Planejar reunião">Planejar reunião</option>
+        </select>
+        <input type="text" id="task-name" placeholder="Ou digite uma nova tarefa" required>
+        <button type="submit">Adicionar Tarefa</button>
+    </form>
+    <div class="container">
+        <div class="task-column" id="open-tasks">
+            <h2>Aberto</h2>
+        </div>
+        <div class="task-column" id="in-progress-tasks">
+            <h2>Em Processamento</h2>
+        </div>
+        <div class="task-column" id="closed-tasks">
+            <h2>Fechado</h2>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById("task-form");
+        const openTasks = document.getElementById("open-tasks");
+        const inProgressTasks = document.getElementById("in-progress-tasks");
+        const closedTasks = document.getElementById("closed-tasks");
+        const predefinedTasks = document.getElementById("predefined-tasks");
+        const taskNameInput = document.getElementById("task-name");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const selectedTask = predefinedTasks.value;
+            const typedTask = taskNameInput.value.trim();
+
+            if (selectedTask || typedTask) {
+                const taskName = selectedTask || typedTask;
+                addTask(taskName, openTasks, "in-progress");
+                form.reset();
+            }
+        });
+
+        function addTask(name, column, nextAction) {
+            const task = document.createElement("div");
+            task.className = "task";
+            task.innerHTML = `
+                <p>${name}</p>
+                <button onclick="moveTask(this, '${nextAction}')">${nextAction === "in-progress" ? "Mover para Em Processamento" : "Mover para Fechado"}</button>
+                <button onclick="deleteTask(this)">Excluir</button>
+            `;
+            column.appendChild(task);
+        }
+
+        function moveTask(button, nextAction) {
+            const task = button.parentElement;
+            task.querySelector("button").onclick = null;
+            if (nextAction === "in-progress") {
+                inProgressTasks.appendChild(task);
+                button.textContent = "Mover para Fechado";
+                button.setAttribute("onclick", "moveTask(this, 'closed')");
+            } else if (nextAction === "closed") {
+                closedTasks.appendChild(task);
+                button.disabled = true; // Tarefa finalizada
+            }
+        }
+
+        function deleteTask(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</body>
+</html>
